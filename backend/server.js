@@ -1,5 +1,7 @@
 const express = require('express');
 const userRouter = require("./router/user.routes");
+const documentRouter = require("./router/document.routes");
+app.use("/api/documents", documentRouter);
 app.use("/api/users", userRouter);
 
 const app = express();
