@@ -99,13 +99,6 @@ Every public link you've handed out to recruiters or mentors, all in one place, 
 - Cover letter builder
 - Multi-language resume support
 
----
-
-## 📄 License
-
-Add your license details here (e.g., MIT, proprietary, etc.)
-
----
 
 ## 📬 Contact
 
