@@ -1,0 +1,15 @@
+.navigation {
+  display: flex;
+  gap: 40px;
+
+  a {
+    color: #cbd5e1;
+    text-decoration: none;
+    font-size: 15px;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #ffffff;
+    }
+  }
+}

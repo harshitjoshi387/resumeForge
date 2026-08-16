@@ -1,0 +1,182 @@
+<div class="page-wrap">
+  <div class="page-header-row">
+    <div class="page-heading">
+      <h1>Applications</h1>
+      <p>Drag a card between columns to move it along your pipeline.</p>
+    </div>
+    <div class="header-actions">
+      <div class="view-toggle">
+        <button
+          class="view-btn"
+          [class.active]="viewMode === 'kanban'"
+          (click)="viewMode = 'kanban'"
+          title="Kanban view"
+        >
+          <app-icon name="kanban" [size]="15"></app-icon>
+        </button>
+        <button
+          class="view-btn"
+          [class.active]="viewMode === 'list'"
+          (click)="viewMode = 'list'"
+          title="List view"
+        >
+          <app-icon name="list" [size]="15"></app-icon>
+        </button>
+      </div>
+      <button class="btn-primary" (click)="openModal()" id="track-app-btn">
+        <app-icon name="plus" [size]="15"></app-icon> Track application
+      </button>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading applications…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!applications().length) {
+    <div class="empty-state">
+      <div class="empty-icon"><app-icon name="briefcase" [size]="48"></app-icon></div>
+      <h3>No applications tracked yet</h3>
+      <p>Add your first job application to start building your pipeline.</p>
+      <button class="btn-primary btn-sm" (click)="openModal()">+ Track application</button>
+    </div>
+  } @else if (viewMode === 'kanban') {
+    <div class="kanban-board">
+      @for (col of columns; track col) {
+        <div
+          class="kanban-col"
+          (dragover)="onDragOver($event)"
+          (drop)="onDrop(col, $event)"
+        >
+          <div class="col-header">
+            <span class="col-dot" [style.background]="statusColors[col]"></span>
+            <span class="col-title">{{ col }}</span>
+            <span class="col-count">({{ countIn(col) }})</span>
+          </div>
+
+          <div class="col-cards">
+            @for (app of appsIn(col); track app.id) {
+              <div
+                class="app-card card"
+                draggable="true"
+                (dragstart)="onDragStart(app)"
+                (dragend)="onDragEnd()"
+                [class.dragging]="draggingId === app.id"
+              >
+                <div class="app-card-top">
+                  <div class="app-card-info">
+                    <h3>{{ app.company }}</h3>
+                    <p>{{ app.role }}</p>
+                  </div>
+                  <div class="dropdown" (click)="$event.stopPropagation()">
+                    <button class="btn-ghost btn-sm" (click)="toggleMenu(app.id, $event)">
+                      <app-icon name="more-horizontal" [size]="16"></app-icon>
+                    </button>
+                    @if (activeMenu === app.id) {
+                      <div class="dropdown-menu">
+                        <button class="dropdown-item danger" (click)="deleteApp(app, $event)">
+                          <app-icon name="trash-2" [size]="14"></app-icon> Remove
+                        </button>
+                      </div>
+                    }
+                  </div>
+                </div>
+                @if (app.document) {
+                  <a [routerLink]="['/documents', app.document.id]" class="app-doc-link" (click)="$event.stopPropagation()">
+                    <app-icon name="file-text" [size]="13"></app-icon>
+                    {{ app.document.title }}
+                  </a>
+                }
+                <span class="app-date">{{ formatDate(app.createdAt) }}</span>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  } @else {
+    <div class="card list-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>Document</th>
+            <th>Added</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (app of applications(); track app.id) {
+            <tr>
+              <td><strong>{{ app.company }}</strong></td>
+              <td class="text-secondary">{{ app.role }}</td>
+              <td>
+                <span class="status-pill" [style.--pill-color]="statusColors[app.status]">{{ app.status }}</span>
+              </td>
+              <td>
+                @if (app.document) {
+                  <a [routerLink]="['/documents', app.document.id]">{{ app.document.title }}</a>
+                } @else {
+                  <span class="text-muted">—</span>
+                }
+              </td>
+              <td class="text-muted">{{ formatDate(app.createdAt) }}</td>
+              <td>
+                <button class="btn-ghost btn-sm" (click)="deleteApp(app, $event)">
+                  <app-icon name="trash-2" [size]="14"></app-icon>
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+
+@if (showModal) {
+  <div class="modal-overlay" (click)="showModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>Track application</h2>
+      <p>Add a company and role to your job search pipeline.</p>
+
+      @if (formError) { <div class="alert alert-error" style="margin-bottom:16px">{{ formError }}</div> }
+
+      <div class="form-group">
+        <label for="app-company">Company</label>
+        <input id="app-company" type="text" class="form-control" [(ngModel)]="form.company" placeholder="e.g. Linear" />
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label for="app-role">Role</label>
+        <input id="app-role" type="text" class="form-control" [(ngModel)]="form.role" placeholder="e.g. Senior Frontend Engineer" />
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label for="app-status">Status</label>
+        <select id="app-status" class="form-control" [(ngModel)]="form.status">
+          @for (s of columns; track s) {
+            <option [value]="s">{{ s }}</option>
+          }
+        </select>
+      </div>
+      <div class="form-group" style="margin-top:14px">
+        <label for="app-doc">Linked document (optional)</label>
+        <select id="app-doc" class="form-control" [(ngModel)]="form.documentId">
+          <option value="">None</option>
+          @for (d of documents(); track d.id) {
+            <option [value]="d.id">{{ d.title }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="showModal = false">Cancel</button>
+        <button class="btn-primary" (click)="create()" [disabled]="!form.company.trim() || !form.role.trim() || saving">
+          @if (saving) { <span class="spinner"></span> }
+          {{ saving ? 'Saving…' : 'Add application' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

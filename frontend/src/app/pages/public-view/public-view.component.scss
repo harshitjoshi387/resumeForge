@@ -1,0 +1,93 @@
+.public-page {
+  min-height: 100vh;
+  background: var(--bg-base);
+}
+
+.public-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 28px;
+  border-bottom: 1px solid var(--border);
+}
+
+.public-logo {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--accent) !important;
+  opacity: 1 !important;
+}
+
+.public-badge {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.public-main {
+  max-width: 680px;
+  margin: 0 auto;
+  padding: 40px 28px 80px;
+}
+
+.public-doc {
+  padding: 36px 40px;
+
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    letter-spacing: -0.03em;
+  }
+
+  .badge { margin-bottom: 28px; }
+}
+
+.doc-section {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+
+  h2 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  ul {
+    list-style: disc;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  li {
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.65;
+  }
+}
+
+.empty-text {
+  margin-top: 24px;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.public-card {
+  padding: 28px;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+@media print {
+  .public-header { display: none; }
+  .public-doc { border: none; box-shadow: none; }
+}
+
+@media (max-width: 640px) {
+  .public-doc { padding: 24px 20px; }
+}

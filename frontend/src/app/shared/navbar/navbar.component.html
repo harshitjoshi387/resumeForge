@@ -1,0 +1,46 @@
+<nav class="navbar">
+  <div class="nav-inner">
+    <!-- Logo -->
+    <a routerLink="/dashboard" class="nav-logo">resumeForge</a>
+
+    <!-- Nav Links -->
+    <ul class="nav-links">
+      @for (link of navLinks; track link.path) {
+        <li>
+          <a
+            [routerLink]="link.path"
+            routerLinkActive="active"
+            class="nav-link"
+          >
+            <app-icon [name]="link.icon" [size]="15"></app-icon>
+            {{ link.label }}
+          </a>
+        </li>
+      }
+    </ul>
+
+    <!-- Avatar + Dropdown -->
+    <div class="nav-avatar-wrap">
+      <button class="nav-avatar-btn" (click)="toggleDropdown()" id="nav-avatar-btn">
+        <span class="nav-avatar">{{ initials }}</span>
+        <span class="nav-username">{{ currentUser?.name }}</span>
+        <app-icon name="chevron-down" [size]="14"></app-icon>
+      </button>
+
+      @if (dropdownOpen) {
+        <div class="dropdown-menu nav-dropdown">
+          <button class="dropdown-item" (click)="goProfile()">
+            <app-icon name="user" [size]="15"></app-icon> Profile
+          </button>
+          <button class="dropdown-item" (click)="goChangePassword()">
+            <app-icon name="key" [size]="15"></app-icon> Change password
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item danger" (click)="signOut()">
+            <app-icon name="log-out" [size]="15"></app-icon> Sign out
+          </button>
+        </div>
+      }
+    </div>
+  </div>
+</nav>

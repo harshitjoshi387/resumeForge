@@ -1,0 +1,81 @@
+<div class="page-wrap">
+  <div class="page-header-row">
+    <div class="page-heading">
+      <h1>Templates</h1>
+      <p>Pick a look, then build a document on top of it.</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading templates…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!templates().length) {
+    <div class="empty-state">
+      <div class="empty-icon"><app-icon name="layout-template" [size]="48"></app-icon></div>
+      <h3>No templates available</h3>
+      <p>Templates will appear here once they've been added to the system.</p>
+    </div>
+  } @else {
+    <div class="template-grid">
+      @for (t of templates(); track t.id; let i = $index) {
+        <div class="tmpl-card card">
+          <!-- Color accent top border -->
+          <div class="tmpl-accent" [style.background]="accentFor(i)"></div>
+
+          <!-- Mini CV preview -->
+          <div class="tmpl-preview">
+            @if (t.name?.toLowerCase().includes('sidebar') || t.type === 'sidebar') {
+              <!-- Sidebar layout preview -->
+              <div class="preview-sidebar">
+                <div class="preview-sb-left">
+                  <div class="preview-avatar-sm" [style.background]="accentFor(i)"></div>
+                  <div class="preview-line short" style="width:60%"></div>
+                  <div class="preview-line short" style="width:80%"></div>
+                  <div class="preview-line short" style="width:50%"></div>
+                </div>
+                <div class="preview-sb-right">
+                  <div class="preview-line" style="width:90%"></div>
+                  <div class="preview-line" style="width:70%"></div>
+                  <div class="preview-line short" style="width:85%"></div>
+                  <div class="preview-line short" style="width:60%"></div>
+                </div>
+              </div>
+            } @else {
+              <!-- Standard layout preview -->
+              <div class="preview-standard">
+                <div class="preview-name-row">
+                  <div class="preview-name-text">Your Name</div>
+                  <div class="preview-accent-line" [style.background]="accentFor(i)"></div>
+                </div>
+                <div class="preview-line" style="width:80%"></div>
+                <div class="preview-line" style="width:65%"></div>
+                <div class="preview-line short" style="width:90%"></div>
+                <div class="preview-line short" style="width:75%"></div>
+              </div>
+            }
+          </div>
+
+          <!-- Card info -->
+          <div class="tmpl-info">
+            <div class="tmpl-header">
+              <span class="badge">{{ t.type || 'resume' }}</span>
+            </div>
+            <h3 class="tmpl-name">{{ t.name }}</h3>
+          </div>
+
+          <!-- Use button -->
+          <button
+            class="btn-primary tmpl-use-btn"
+            (click)="useTemplate(t)"
+            [disabled]="!!usingId"
+            [id]="'use-tmpl-' + t.id"
+          >
+            @if (usingId === t.id) { <span class="spinner"></span> Creating… }
+            @else { Use this template }
+          </button>
+        </div>
+      }
+    </div>
+  }
+</div>

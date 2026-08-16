@@ -1,0 +1,110 @@
+<div class="editor-page">
+  <div class="editor-toolbar">
+    <div class="toolbar-left">
+      <a routerLink="/documents" class="back-btn">
+        <app-icon name="arrow-left" [size]="14"></app-icon>
+        Documents
+      </a>
+      @if (document) {
+        <span class="doc-type badge">{{ document.type }}</span>
+      }
+    </div>
+    <div class="toolbar-right">
+      @if (actionMsg) {
+        <span class="action-msg">{{ actionMsg }}</span>
+      }
+      <button class="btn-secondary btn-sm" (click)="share()" [disabled]="sharing">
+        @if (sharing) { <span class="spinner"></span> }
+        @else { <app-icon name="share-2" [size]="14"></app-icon> }
+        Share
+      </button>
+      <button class="btn-primary btn-sm" (click)="exportPdf()" [disabled]="exporting">
+        @if (exporting) { <span class="spinner"></span> }
+        @else { <app-icon name="download" [size]="14"></app-icon> }
+        Export PDF
+      </button>
+    </div>
+  </div>
+
+  <div class="editor-body page-wrap">
+    @if (loading()) {
+      <div class="loading-state"><div class="spinner"></div> Loading document…</div>
+    } @else if (error()) {
+      <div class="alert alert-error">{{ error() }}</div>
+      <a routerLink="/documents" class="btn-secondary">Back to documents</a>
+    } @else if (document) {
+      <div class="title-row">
+        <input
+          type="text"
+          class="title-input"
+          [(ngModel)]="document.title"
+          (blur)="saveTitle()"
+          placeholder="Document title"
+        />
+        @if (savingTitle) { <span class="spinner"></span> }
+      </div>
+
+      <div class="sections-wrap">
+        @if (!document.sections?.length) {
+          <div class="empty-state" style="padding: 40px 0">
+            <h3>No sections yet</h3>
+            <p>Add a section below to start building your document.</p>
+          </div>
+        }
+
+        @for (section of document.sections; track section.id) {
+          <div class="section-card card">
+            <div class="section-header">
+              <input
+                type="text"
+                class="section-title-input"
+                [(ngModel)]="section.title"
+                (blur)="updateSectionHeading(section)"
+                placeholder="Section heading"
+              />
+              <button class="btn-ghost btn-sm danger-text" (click)="deleteSection(section)">
+                <app-icon name="trash-2" [size]="14"></app-icon>
+              </button>
+            </div>
+
+            <ul class="item-list">
+              @for (item of section.items; track item.id) {
+                <li class="item-row">
+                  <span class="bullet">•</span>
+                  <textarea
+                    class="item-input"
+                    [(ngModel)]="item.content"
+                    (blur)="updateItem(section, item)"
+                    rows="1"
+                  ></textarea>
+                  <button class="btn-ghost btn-sm" (click)="deleteItem(section, item)">
+                    <app-icon name="x" [size]="14"></app-icon>
+                  </button>
+                </li>
+              }
+            </ul>
+
+            <button class="btn-ghost btn-sm add-item-btn" (click)="addItem(section)">
+              <app-icon name="plus" [size]="14"></app-icon> Add bullet
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="add-section-row">
+        <input
+          type="text"
+          class="form-control"
+          [(ngModel)]="newSectionTitle"
+          placeholder="New section heading…"
+          (keyup.enter)="addSection()"
+        />
+        <button class="btn-primary" (click)="addSection()" [disabled]="!newSectionTitle.trim() || addingSection">
+          @if (addingSection) { <span class="spinner"></span> }
+          @else { <app-icon name="plus" [size]="14"></app-icon> }
+          Add section
+        </button>
+      </div>
+    }
+  </div>
+</div>

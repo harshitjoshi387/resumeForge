@@ -1,0 +1,53 @@
+<div class="page-wrap">
+  <div class="page-header-row">
+    <div class="page-heading">
+      <h1>Shared links</h1>
+      <p>Every public link you have handed out, in one place.</p>
+    </div>
+    <a routerLink="/documents" class="btn-secondary">
+      <app-icon name="file-text" [size]="15"></app-icon> Go to documents
+    </a>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading shared links…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!shares().length) {
+    <div class="empty-state">
+      <div class="empty-icon"><app-icon name="link" [size]="48"></app-icon></div>
+      <h3>No shared links yet</h3>
+      <p>Share a document from your library and the link will appear here.</p>
+      <a routerLink="/documents" class="btn-primary btn-sm">Go to documents</a>
+    </div>
+  } @else {
+    <ul class="share-list">
+      @for (share of shares(); track share.id) {
+        <li class="share-card card">
+          <div class="share-main">
+            <h3>{{ share.document?.title || 'Untitled document' }}</h3>
+            <div class="share-url-row">
+              <app-icon name="link" [size]="14"></app-icon>
+              <a [href]="shareUrl(share.slug)" target="_blank" rel="noopener">{{ shareUrl(share.slug) }}</a>
+            </div>
+            <p class="share-date">Created {{ formatDate(share.createdAt) }}</p>
+          </div>
+          <div class="share-actions">
+            <button class="action-btn" (click)="copyLink(share)" [title]="copiedId === share.id ? 'Copied!' : 'Copy link'">
+              <app-icon [name]="copiedId === share.id ? 'check' : 'copy'" [size]="16"></app-icon>
+            </button>
+            <button class="action-btn" (click)="openLink(share.slug)" title="Open in new tab">
+              <app-icon name="external-link" [size]="16"></app-icon>
+            </button>
+            <button class="action-btn" (click)="printLink(share.slug)" title="Print">
+              <app-icon name="printer" [size]="16"></app-icon>
+            </button>
+            <button class="action-btn danger" (click)="revoke(share)" title="Revoke link">
+              <app-icon name="link-slash" [size]="16"></app-icon>
+            </button>
+          </div>
+        </li>
+      }
+    </ul>
+  }
+</div>

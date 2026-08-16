@@ -1,0 +1,39 @@
+<div class="public-page">
+  <header class="public-header">
+    <a routerLink="/" class="public-logo">resumeForge</a>
+    <span class="public-badge">Shared document</span>
+  </header>
+
+  <main class="public-main">
+    @if (loading()) {
+      <div class="loading-state"><div class="spinner"></div> Loading…</div>
+    } @else if (error()) {
+      <div class="public-card card">
+        <div class="alert alert-error">{{ error() }}</div>
+        <a routerLink="/login" class="btn-primary btn-sm">Sign in</a>
+      </div>
+    } @else if (document) {
+      <article class="public-doc card">
+        <h1>{{ document.title }}</h1>
+        <span class="badge">{{ document.type }}</span>
+
+        @if (!document.sections?.length) {
+          <p class="empty-text">This document has no content yet.</p>
+        } @else {
+          @for (section of document.sections; track section.id) {
+            <section class="doc-section">
+              <h2>{{ section.heading }}</h2>
+              @if (section.items?.length) {
+                <ul>
+                  @for (item of section.items; track item.id) {
+                    <li>{{ item.content }}</li>
+                  }
+                </ul>
+              }
+            </section>
+          }
+        }
+      </article>
+    }
+  </main>
+</div>

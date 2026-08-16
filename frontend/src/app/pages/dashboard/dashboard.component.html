@@ -1,0 +1,102 @@
+<div class="page-wrap">
+
+  <!-- Header row -->
+  <div class="dash-header">
+    <div>
+      <h1 class="dash-greeting">Hi {{ userName() }} 👋</h1>
+      <p class="text-muted">Here is where everything stands today.</p>
+    </div>
+    <div class="dash-actions">
+      <a routerLink="/applications" class="btn-secondary">
+        <app-icon name="briefcase" [size]="15"></app-icon> Track an application
+      </a>
+      <a routerLink="/documents" class="btn-primary">
+        <app-icon name="plus" [size]="15"></app-icon> New resume
+      </a>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading your workspace…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else {
+    <!-- Stat Cards -->
+    <div class="stat-grid">
+      @for (card of statCards; track card.key) {
+        <div class="stat-card card">
+          <div class="stat-icon">
+            <app-icon [name]="card.icon" [size]="20"></app-icon>
+          </div>
+          <div class="stat-value">{{ statValue(card.key) }}</div>
+          <div class="stat-label">{{ card.label }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Two column section -->
+    <div class="dash-grid">
+      <!-- Recent Documents -->
+      <div class="dash-panel card">
+        <div class="panel-header">
+          <h2>Recent documents</h2>
+          <a routerLink="/documents" class="panel-link">View all</a>
+        </div>
+
+        @if (!stats()?.recentDocuments?.length) {
+          <div class="empty-state" style="padding: 40px 0">
+            <div class="empty-icon">
+              <app-icon name="file-text" [size]="36"></app-icon>
+            </div>
+            <h3>Nothing here yet</h3>
+            <p>Create your first resume and it'll show up here.</p>
+          </div>
+        } @else {
+          <ul class="doc-list">
+            @for (doc of stats()!.recentDocuments; track doc.id) {
+              <li class="doc-item" (click)="goToDocument(doc.id)">
+                <div class="doc-item-icon">
+                  <app-icon name="file-text" [size]="15"></app-icon>
+                </div>
+                <div class="doc-item-info">
+                  <span class="doc-item-title">{{ doc.title }}</span>
+                  <span class="doc-item-meta">{{ doc.type }} · updated {{ formatDate(doc.updatedAt) }}</span>
+                </div>
+                <app-icon name="chevron-right" [size]="14"></app-icon>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+
+      <!-- Application Pipeline -->
+      <div class="dash-panel card">
+        <div class="panel-header">
+          <h2>Application pipeline</h2>
+          <a routerLink="/applications" class="panel-link">Manage</a>
+        </div>
+
+        @if (!stats()?.applicationPipeline?.length) {
+          <div class="empty-state" style="padding: 40px 0">
+            <div class="empty-icon"><app-icon name="briefcase" [size]="36"></app-icon></div>
+            <h3>No applications tracked</h3>
+            <p>Start tracking your job applications to see the pipeline here.</p>
+          </div>
+        } @else {
+          <ul class="pipeline-list">
+            @for (item of stats()!.applicationPipeline; track item.status) {
+              <li class="pipeline-item">
+                <span class="pipeline-dot" [style.background]="statusColors[item.status]"></span>
+                <span class="pipeline-status">{{ item.status }}</span>
+                <div class="pipeline-bar-wrap">
+                  <div class="pipeline-bar" [style.width]="barWidth(item.count)" [style.background]="statusColors[item.status]"></div>
+                </div>
+                <span class="pipeline-count">{{ item.count }}</span>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+    </div>
+  }
+</div>

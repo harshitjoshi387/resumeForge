@@ -1,0 +1,136 @@
+<div class="page-wrap">
+  <!-- Header -->
+  <div class="page-header-row">
+    <div class="page-heading">
+      <h1>Documents</h1>
+      <p>Every resume, CV and cover letter you are working on.</p>
+    </div>
+    <button class="btn-primary" (click)="showCreateModal = true" id="new-doc-btn">
+      <app-icon name="plus" [size]="15"></app-icon> New document
+    </button>
+  </div>
+
+  <!-- Search + Filter -->
+  <div class="docs-controls">
+    <div class="search-wrap">
+      <app-icon name="search" [size]="15"></app-icon>
+      <input
+        type="text"
+        class="form-control search-input"
+        placeholder="Search…"
+        [(ngModel)]="search"
+        id="doc-search"
+      />
+    </div>
+    <div class="filter-wrap">
+      <label class="filter-label">Type</label>
+      <select class="form-control filter-select" [(ngModel)]="typeFilter" id="doc-type-filter">
+        <option value="">All types</option>
+        @for (t of types; track t) {
+          <option [value]="t">{{ t }}</option>
+        }
+      </select>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading documents…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!filtered.length) {
+    <div class="empty-state">
+      <div class="empty-icon"><app-icon name="file-text" [size]="48"></app-icon></div>
+      @if (search || typeFilter) {
+        <h3>No documents match your filters</h3>
+        <p>Try clearing the search or changing the type filter.</p>
+      } @else {
+        <h3>No documents yet</h3>
+        <p>Create your first document and it'll appear right here.</p>
+      }
+      <button class="btn-primary btn-sm" (click)="showCreateModal = true">+ New document</button>
+    </div>
+  } @else {
+    <div class="doc-grid">
+      @for (doc of filtered; track doc.id) {
+        <div class="doc-card card" (click)="openEditor(doc.id)">
+          <div class="doc-card-top">
+            <div class="doc-card-icon">
+              <app-icon name="file-text" [size]="18"></app-icon>
+            </div>
+            <div class="dropdown" (click)="$event.stopPropagation()">
+              <button class="btn-ghost btn-sm doc-menu-btn" (click)="toggleMenu(doc.id, $event)" [id]="'doc-menu-' + doc.id">
+                <app-icon name="more-horizontal" [size]="16"></app-icon>
+              </button>
+              @if (activeMenu === doc.id) {
+                <div class="dropdown-menu">
+                  <button class="dropdown-item" (click)="openEditor(doc.id)">
+                    <app-icon name="edit" [size]="14"></app-icon> Edit
+                  </button>
+                  <button class="dropdown-item" (click)="duplicate(doc, $event)">
+                    <app-icon name="copy" [size]="14"></app-icon> Duplicate
+                  </button>
+                  <button class="dropdown-item" (click)="shareDoc(doc, $event)">
+                    <app-icon name="share-2" [size]="14"></app-icon> Share
+                  </button>
+                  <div class="dropdown-divider"></div>
+                  <button class="dropdown-item danger" (click)="delete(doc, $event)">
+                    <app-icon name="trash-2" [size]="14"></app-icon> Delete
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+
+          <div class="doc-card-body">
+            <h3 class="doc-card-title">{{ doc.title }}</h3>
+            <div class="doc-card-tags">
+              <span class="badge">{{ doc.type }}</span>
+            </div>
+            <p class="doc-card-date">Updated {{ formatDate(doc.updatedAt) }}</p>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+<!-- Create Modal -->
+@if (showCreateModal) {
+  <div class="modal-overlay" (click)="showCreateModal = false">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <h2>New document</h2>
+      <p>Give your document a title to get started.</p>
+
+      @if (createError) { <div class="alert alert-error" style="margin-bottom:16px">{{ createError }}</div> }
+
+      <div class="form-group">
+        <label for="create-title">Title</label>
+        <input
+          id="create-title"
+          type="text"
+          class="form-control"
+          [(ngModel)]="newTitle"
+          placeholder="e.g. Senior Frontend Engineer — 2026"
+          (keyup.enter)="createDocument()"
+        />
+      </div>
+
+      <div class="form-group" style="margin-top:14px">
+        <label for="create-type">Type</label>
+        <select id="create-type" class="form-control" [(ngModel)]="newType">
+          @for (t of types; track t) {
+            <option [value]="t">{{ t }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-ghost" (click)="showCreateModal = false">Cancel</button>
+        <button class="btn-primary" (click)="createDocument()" [disabled]="!newTitle.trim() || creating">
+          @if (creating) { <span class="spinner"></span> }
+          {{ creating ? 'Creating…' : 'Create document' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

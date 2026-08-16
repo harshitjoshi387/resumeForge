@@ -1,0 +1,54 @@
+<div class="page-wrap">
+  <div class="page-heading">
+    <h1>Exports</h1>
+    <p>PDF exports you've generated from your documents.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading exports…</div>
+  } @else if (error()) {
+    <div class="alert alert-error">{{ error() }}</div>
+  } @else if (!exports().length) {
+    <div class="empty-state">
+      <div class="empty-icon"><app-icon name="download" [size]="48"></app-icon></div>
+      <h3>No exports yet</h3>
+      <p>Export a document as PDF from the editor and it will show up here.</p>
+      <a routerLink="/documents" class="btn-primary btn-sm">Go to documents</a>
+    </div>
+  } @else {
+    <div class="card export-list">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Document</th>
+            <th>Format</th>
+            <th>Exported</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (exp of exports(); track exp.id) {
+            <tr>
+              <td>
+                <a [routerLink]="['/documents', exp.documentId]">{{ exp.document?.title || 'Document #' + exp.documentId }}</a>
+              </td>
+              <td><span class="badge">{{ exp.format | uppercase }}</span></td>
+              <td class="text-muted">{{ formatDate(exp.createdAt) }}</td>
+              <td>
+                <button
+                  class="btn-secondary btn-sm"
+                  (click)="reDownload(exp)"
+                  [disabled]="downloadingId === exp.id"
+                >
+                  @if (downloadingId === exp.id) { <span class="spinner"></span> }
+                  @else { <app-icon name="download" [size]="14"></app-icon> }
+                  Download
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

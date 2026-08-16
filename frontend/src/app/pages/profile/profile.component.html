@@ -1,0 +1,36 @@
+<div class="page-wrap profile-page">
+  <div class="page-heading">
+    <h1>Profile</h1>
+    <p>Manage your account details.</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-state"><div class="spinner"></div> Loading profile…</div>
+  } @else {
+    <div class="profile-card card">
+      @if (error()) { <div class="alert alert-error">{{ error() }}</div> }
+      @if (success()) { <div class="alert alert-success">{{ success() }}</div> }
+
+      <form [formGroup]="form" (ngSubmit)="submit()" class="profile-form">
+        <div class="form-group">
+          <label for="profile-name">Full name</label>
+          <input id="profile-name" type="text" class="form-control" formControlName="name" />
+        </div>
+        <div class="form-group">
+          <label for="profile-email">Email</label>
+          <input id="profile-email" type="email" class="form-control" formControlName="email" />
+        </div>
+
+        <div class="form-actions">
+          <a routerLink="/change-password" class="btn-ghost">
+            <app-icon name="key" [size]="14"></app-icon> Change password
+          </a>
+          <button type="submit" class="btn-primary" [disabled]="form.invalid || saving">
+            @if (saving) { <span class="spinner"></span> }
+            {{ saving ? 'Saving…' : 'Save changes' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+</div>

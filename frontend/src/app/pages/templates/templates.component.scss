@@ -1,0 +1,115 @@
+.template-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+}
+
+.tmpl-card {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
+}
+
+.tmpl-accent {
+  height: 3px;
+  width: 100%;
+}
+
+// Mini preview
+.tmpl-preview {
+  background: #fff;
+  margin: 12px 12px 0;
+  border-radius: var(--radius-sm);
+  height: 130px;
+  overflow: hidden;
+  padding: 12px;
+}
+
+// Standard layout preview
+.preview-standard { display: flex; flex-direction: column; gap: 6px; }
+
+.preview-name-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  margin-bottom: 4px;
+}
+
+.preview-name-text {
+  font-size: 9px;
+  font-weight: 700;
+  color: #1a1a1a;
+  letter-spacing: -0.02em;
+}
+
+.preview-accent-line {
+  height: 2px;
+  width: 100%;
+  border-radius: 1px;
+}
+
+.preview-line {
+  height: 5px;
+  background: #e0e0e0;
+  border-radius: 3px;
+}
+
+.preview-line.short { height: 4px; background: #ebebeb; }
+
+// Sidebar layout preview
+.preview-sidebar {
+  display: flex;
+  gap: 8px;
+  height: 100%;
+}
+
+.preview-sb-left {
+  width: 38%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  padding: 6px 5px;
+}
+
+.preview-sb-right {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 6px 0;
+}
+
+.preview-avatar-sm {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  opacity: 0.7;
+  margin-bottom: 4px;
+}
+
+// Card info
+.tmpl-info {
+  padding: 12px 14px 8px;
+
+  .tmpl-header {
+    margin-bottom: 6px;
+  }
+
+  .tmpl-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+}
+
+// Use button
+.tmpl-use-btn {
+  width: calc(100% - 24px);
+  margin: 0 12px 14px;
+  justify-content: center;
+  font-size: 13px !important;
+  padding: 9px !important;
+}
