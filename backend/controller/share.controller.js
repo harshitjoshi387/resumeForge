@@ -80,6 +80,27 @@ exports.getPublicDocument = async (req, res) => {
   }
 };
 
+// ==================== GET ALL SHARE LINKS FOR CURRENT USER ====================
+exports.getAllShares = async (req, res) => {
+  try {
+    const shares = await Share.findAll({
+      include: [
+        {
+          model: Document,
+          where: { userId: req.user.id },
+          attributes: ["id", "title", "type"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(200).json({ shares });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // ==================== REVOKE / DELETE SHARE LINK ====================
 exports.deleteShare = async (req, res) => {
   try {

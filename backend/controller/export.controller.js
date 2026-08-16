@@ -83,6 +83,27 @@ exports.exportDocumentPDF = async (req, res) => {
   }
 };
 
+// ==================== GET ALL EXPORTS FOR CURRENT USER ====================
+exports.getAllUserExports = async (req, res) => {
+  try {
+    const exportsList = await Export.findAll({
+      where: { userId: req.user.id },
+      include: [
+        {
+          model: Document,
+          attributes: ["id", "title", "type"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(200).json({ exports: exportsList });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
 // ==================== GET EXPORT HISTORY ====================
 exports.getExportHistory = async (req, res) => {
   try {
