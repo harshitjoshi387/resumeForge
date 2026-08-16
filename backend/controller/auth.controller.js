@@ -4,18 +4,17 @@ const crypto = require("crypto");
 const db = require("../models");
 const User = db.user;
 
-
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.status(400).json({ message: "Name, email aur password zaroori hain" });
+      return res.status(400).json({ message: "Name, email, and password are required" });
     }
 
     const existingUser = await User.findOne({ where: { email } });
     if (existingUser) {
-      return res.status(409).json({ message: "Is email se user pehle se registered hai" });
+      return res.status(409).json({ message: "User is already registered with this email" });
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -43,23 +42,22 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     if (!email || !password) {
-      return res.status(400).json({ message: "Email aur password zaroori hain" });
+      return res.status(400).json({ message: "Email and password are required" });
     }
 
     const existingUser = await User.findOne({ where: { email } });
     if (!existingUser) {
-      return res.status(404).json({ message: "User nahi mila" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, existingUser.password);
     if (!isPasswordValid) {
-      return res.status(401).json({ message: "Galat password" });
+      return res.status(401).json({ message: "Incorrect password" });
     }
 
     const token = jwt.sign(
@@ -79,35 +77,32 @@ exports.loginUser = async (req, res) => {
   }
 };
 
-
 exports.forgetPassword = async (req, res) => {
   try {
     const { email } = req.body;
 
     if (!email) {
-      return res.status(400).json({ message: "Email zaroori hai" });
+      return res.status(400).json({ message: "Email is required" });
     }
 
     const existingUser = await User.findOne({ where: { email } });
     if (!existingUser) {
-      return res.status(404).json({ message: "Is email se koi user registered nahi hai" });
+      return res.status(404).json({ message: "No user found with this email" });
     }
 
-    // Random reset token banao
+    // Generate random reset token
     const resetToken = crypto.randomBytes(32).toString("hex");
 
-    // Token ko database mein save karo (15 minute valid)
+    // Save token to database (valid for 15 minutes)
     existingUser.resetPasswordToken = resetToken;
-    existingUser.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 min
+    existingUser.resetPasswordExpires = Date.now() + 15 * 60 * 1000; // 15 mins
     await existingUser.save();
 
-    // Yahan aap email bhej sakte ho nodemailer se (neeche note dekho)
-    // Filhaal testing ke liye token response mein bhej rahe hain
     const resetUrl = `${process.env.CLIENT_URL || "http://localhost:3000"}/reset-password/${resetToken}`;
 
     return res.status(200).json({
-      message: "Password reset link generate ho gaya",
-      resetUrl, // Production mein isse email se bhejo, response mein mat bhejo
+      message: "Password reset link generated successfully",
+      resetUrl,
     });
   } catch (error) {
     console.error(error);
@@ -115,14 +110,13 @@ exports.forgetPassword = async (req, res) => {
   }
 };
 
-
 exports.resetPassword = async (req, res) => {
   try {
-    const { token } = req.params; // ya req.body se le sakte ho
+    const { token } = req.params;
     const { password } = req.body;
 
     if (!password) {
-      return res.status(400).json({ message: "Naya password zaroori hai" });
+      return res.status(400).json({ message: "New password is required" });
     }
 
     const existingUser = await User.findOne({
@@ -132,22 +126,22 @@ exports.resetPassword = async (req, res) => {
     });
 
     if (!existingUser) {
-      return res.status(400).json({ message: "Token invalid hai" });
+      return res.status(400).json({ message: "Invalid reset token" });
     }
 
-    // Token expire to nahi hua check karo
+    // Check if token has expired
     if (existingUser.resetPasswordExpires < Date.now()) {
-      return res.status(400).json({ message: "Token expire ho chuka hai, dobara request karo" });
+      return res.status(400).json({ message: "Token has expired, please request again" });
     }
 
-    // Naya password hash karke save karo
+    // Hash new password and update user record
     const hashedPassword = await bcrypt.hash(password, 10);
     existingUser.password = hashedPassword;
     existingUser.resetPasswordToken = null;
     existingUser.resetPasswordExpires = null;
     await existingUser.save();
 
-    return res.status(200).json({ message: "Password successfully reset ho gaya" });
+    return res.status(200).json({ message: "Password reset successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error", error: error.message });

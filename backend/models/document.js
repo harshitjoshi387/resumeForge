@@ -10,14 +10,13 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
-      Document.belongsTo(models.User, { foreignKey: 'userId' });
-      Document.belongsTo(models.Template, { foreignKey: 'templateId' });
-      Document.hasMany(models.Section, { foreignKey: 'documentId' });
-      Document.hasMany(models.Version, { foreignKey: 'documentId' });
-      Document.hasMany(models.Application, { foreignKey: 'documentId' });
-      Document.hasOne(models.Share, { foreignKey: 'documentId' });
-      Document.hasMany(models.Export, { foreignKey: 'documentId' });
+      this.belongsTo(models.user, { foreignKey: 'userId', onDelete: 'CASCADE' });
+      this.belongsTo(models.template, { foreignKey: 'templateId', onDelete: 'SET NULL' });
+      this.hasMany(models.section, { as: 'sections', foreignKey: 'documentId', onDelete: 'CASCADE' });
+      this.hasMany(models.version, { foreignKey: 'documentId', onDelete: 'CASCADE' });
+      this.hasMany(models.application, { foreignKey: 'documentId', onDelete: 'CASCADE' });
+      this.hasOne(models.share, { foreignKey: 'documentId', onDelete: 'CASCADE' });
+      this.hasMany(models.export, { foreignKey: 'documentId', onDelete: 'CASCADE' });
     }
   }
   document.init({

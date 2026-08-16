@@ -10,7 +10,7 @@ exports.getMe = async (req, res) => {
     });
 
     if (!currentUser) {
-      return res.status(404).json({ message: "User nahi mila" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     return res.status(200).json({ user: currentUser });
@@ -27,14 +27,14 @@ exports.updateMe = async (req, res) => {
 
     const currentUser = await User.findByPk(req.user.id);
     if (!currentUser) {
-      return res.status(404).json({ message: "User nahi mila" });
+      return res.status(404).json({ message: "User not found" });
     }
 
-    // Agar email change ho raha hai, check karo pehle se koi aur use to nahi kar raha
+    // If email is changing, check if another user is already using it
     if (email && email !== currentUser.email) {
       const emailTaken = await User.findOne({ where: { email } });
       if (emailTaken) {
-        return res.status(409).json({ message: "Ye email pehle se kisi aur account mein use ho raha hai" });
+        return res.status(409).json({ message: "This email is already in use by another account" });
       }
       currentUser.email = email;
     }
@@ -42,7 +42,7 @@ exports.updateMe = async (req, res) => {
     if (name) currentUser.name = name;
     if (photo) currentUser.photo = photo;
 
-    // Password change karna ho to hash karke save karo
+    // Hash and update password if provided
     if (password) {
       const hashedPassword = await bcrypt.hash(password, 10);
       currentUser.password = hashedPassword;
@@ -51,7 +51,7 @@ exports.updateMe = async (req, res) => {
     await currentUser.save();
 
     return res.status(200).json({
-      message: "Profile update ho gaya",
+      message: "Profile updated successfully",
       user: {
         id: currentUser.id,
         name: currentUser.name,
@@ -70,12 +70,12 @@ exports.deleteMe = async (req, res) => {
   try {
     const currentUser = await User.findByPk(req.user.id);
     if (!currentUser) {
-      return res.status(404).json({ message: "User nahi mila" });
+      return res.status(404).json({ message: "User not found" });
     }
 
     await currentUser.destroy();
 
-    return res.status(200).json({ message: "Account successfully delete ho gaya" });
+    return res.status(200).json({ message: "Account deleted successfully" });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ message: "Server error", error: error.message });
